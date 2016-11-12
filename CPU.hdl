@@ -39,5 +39,26 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    // to A register
+    Mux16( a=instruction, b=ALUOutput,sel = instruction[15],out= inARegister);
+
+    // A register
+    Register(in= inARegister, load=instruction[5],out=inPC, out=afterARegister);
+
+    //select between the A register and the M register
+    Mux16( a= inALU, b= inM, sel= instruction[12], out= afterMux);
+
+    //TODO  i don't think the ALU is right
+    ALU(x=inALU, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
+        ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOutput,ng= ngOutput
+        out=inARegister, out =inDRegister, out= inMMux);
+
+    // the exit to the M register
+    Mux16(a= false,b=inMMux, sel=instruction[4],out=outM);
+
+    // D register
+    Register(in= inDRegister, load=instruction[4],out=inALU);
+
+    // the program counter
+    PC(in=inPC, inc =, load=, reset=, out=
 }

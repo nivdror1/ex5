@@ -59,6 +59,6 @@ CHIP CPU {
     // D register
     Register(in= inDRegister, load=instruction[4],out=inALU);
 
-    // the program counter
+    // the program counter todo the pc isn't complete
     PC(in=inPC, inc =, load=, reset=, out=
 }

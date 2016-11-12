@@ -43,7 +43,7 @@ CHIP CPU {
     Mux16( a=instruction, b=ALUOutput,sel = instruction[15],out= inARegister);
 
     // A register
-    Register(in= inARegister, load=instruction[5],out=inPC, out=afterARegister);
+    Register(in= inARegister, load=instruction[5],out=inPC,out=afterARegister,out[0..14]=AddressM);
 
     //select between the A register and the M register
     Mux16( a= inALU, b= inM, sel= instruction[12], out= afterMux);

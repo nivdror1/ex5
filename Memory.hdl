@@ -27,5 +27,20 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    //select by MSB of the address if the load reaches the RAM or to IO memory
+    DMux( in=load, sel=address[14],a=RamLoad,b= IOLoad);
+
+    // if IO memory was selected ,select by 13 byte of the address
+    // if to proceed to the screen or to the keyboard
+    DMux(in =IOLoad, sel= address[13], a= ScreenLoad, b= KeyboardLoad);
+
+    //the memory map that consist of the RAM16K, the screen and the keyboard
+    RAM16K(in= in,load=RamLoad, address=address[0..13],out=out0);
+    Screen(in=in, load=ScreenLoad, address=address[0..12],out=out1);
+    Keyboard(out=out2);
+
+    //choose between the screen output and the keyboard output
+    Mux16 (a=out1, b=out2, sel=address[13],out=outIO);
+    //choose between the IO output and the RAM output
+    Mux16( a=out0, b=outIO, sel=address[14],out=out);
 }

@@ -84,4 +84,5 @@ CHIP CPU {
     // the program counter todo the pc maybe complete
     PC(in=inPC, inc=noJump, load=loadPart2, reset=reset, out=pc);
 
+
 }

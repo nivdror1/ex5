@@ -51,7 +51,7 @@ CHIP CPU {
     //TODO  i don't think the ALU is right
     ALU(x=inALU, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
         ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOutput,ng= ngOutput
-        out=inARegister, out =inDRegister, out= outM,out=inPcMux);
+        ,out=inARegister, out =inDRegister, out= outM,out=inPcMux);
 
     // check if is there a need to write to the M register
     And(a= true,b=instruction[4],out=writeM);
@@ -65,7 +65,6 @@ CHIP CPU {
 
     // checking if the ALU output is negative
     And(a=inPcMux[15], b=instruction[2], out=outputALUNeg);
-
 
     //check if it is a no jump instruction
     Not(in=instruction[0],out=afterNot0);

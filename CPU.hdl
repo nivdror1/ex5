@@ -51,32 +51,38 @@ CHIP CPU {
     //TODO  i don't think the ALU is right
     ALU(x=inALU, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
         ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOutput,ng= ngOutput
-        out=inARegister, out =inDRegister, out= inMMux,out=inPcMux);
+        out=inARegister, out =inDRegister, out= outM,out=inPcMux);
 
-    // the exit to the M register
-    Mux16(a= false,b=inMMux, sel=instruction[4],out=outM);
+    // check if is there a need to write to the M register
+    And(a= true,b=instruction[4],out=writeM);
 
     // D register
     Register(in= inDRegister, load=instruction[4],out=inALU);
 
-    // checking if the ALU output is negative
-    And(a=inPcMux[15], b=true, out=isNeg);
-
-    And(a=true, b=instruction[2], out=isInstructionNeg);
-
     //check if it is an unconditional jump
-    And(a=instruction[1],b=afterMux,out=jumpPart1);
-    And(a=instruction[0], b=jumpPart2, out=jump);
+    And(a=instruction[1],b=instruction[2],out=jumpPart1);
+    And(a=instruction[0], b=jumpPart2, out=jumpPart2, out=jumpIns);
+
+    // checking if the ALU output is negative
+    And(a=inPcMux[15], b=instruction[2], out=outputALUNeg);
+
 
     //check if it is a no jump instruction
     Not(in=instruction[0],out=afterNot0);
     Not(in=instruction[1],out=afterNot1);
-    Not(in=instruction[2], out=afterNot2);
+    Not(in=instruction[2], out=afterNot2, out= checkALUPos);
     And(a=afterNot0, b= afterNot1, out=noJumpPart1);
     And(a=noJumpPart1, b=afterNot,out=noJump);
 
+    // checking if the ALU output is positive
+    Not(in=inPcMux[15],out=notInPcMux);
+    And(a=notInPcMux, b= checkALUPos,out=outputALUPos);
 
+    //select which jump operation to load into the pc
+    Mux(a=outputALUNeg,b=jumpPart2 ,sel=jumpIns, out=loadPart1);
+    Mux(a=outputALUPos, b=loadPart1, sel= jumpIns, out=loadPart2);
 
-    // the program counter todo the pc isn't complete
-    PC(in=inPC, inc=true, load=, reset=reset, out=pc);
+    // the program counter todo the pc maybe complete
+    PC(in=inPC, inc=noJump, load=loadPart2, reset=reset, out=pc);
+
 }

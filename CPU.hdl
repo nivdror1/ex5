@@ -42,8 +42,13 @@ CHIP CPU {
     // to A register
     Mux16( a=instruction, b=ALUOutput,sel = instruction[15],out= inARegister);
 
+    //A register load
+    Not(in=instruction[15], out=no15);
+    And(a=instruction[5],b= instruction[15],out= cInstru);
+    Or(a= no15, b=cInstru, out=ARegisterLoad);
+
     // A register
-    ARegister(in= inARegister, load=instruction[5],out=inPC,out=afterARegister,out[0..14]=addressM);
+    ARegister(in= inARegister, load=ARegisterLoad,out=inPC,out=afterARegister,out[0..14]=addressM);
 
     //select between the A register and the M register
     Mux16( a= afterARegister, b= inM, sel= instruction[12], out= afterMux);
@@ -55,8 +60,11 @@ CHIP CPU {
     // check if is there a need to write to the M register
     And(a= instruction[15],b=instruction[3],out=writeM);
 
+    //D register load
+    And(a= instruction[15],b=instruction[4],out=DRegisterLoad);
+
     // D register
-    DRegister(in= inDRegister, load=instruction[4],out=afterDRegister);
+    DRegister(in= inDRegister, load=DRegisterLoad,out=afterDRegister);
 
     // checking if the ALU output is negative, positive and equal to zero
 
@@ -76,6 +84,5 @@ CHIP CPU {
 
     // the program counter todo the pc maybe complete
     PC(in=inPC, inc=inc1, load=load1, reset=reset, out[0..14]=pc);
-
 
 }

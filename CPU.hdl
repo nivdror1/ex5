@@ -78,11 +78,12 @@ CHIP CPU {
 
     Or(a=isNeg,b=isZero,out=out1);
     Or(a=isPos, b=out1, out=out2,out=load1);
+    And(a=load1, b=instruction[15],out=load2, out=load3);
 
-    Not(in=out2,out=notOut2);
-    And(a=true,b=notOut2,out=inc1);
+    Not(in=load2,out=notLoad2);
+    And(a=true,b=notLoad2,out=inc1);
 
     // the program counter todo the pc maybe complete
-    PC(in=inPC, inc=inc1, load=load1, reset=reset, out[0..14]=pc);
+    PC(in=inPC, inc=inc1, load=load2, reset=reset, out[0..14]=pc);
 
 }

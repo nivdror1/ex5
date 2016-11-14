@@ -53,6 +53,7 @@ CHIP CPU {
     //select between the A register and the M register
     Mux16( a= afterARegister, b= inM, sel= instruction[12], out= afterMux);
     //the ALU
+
     ALU(x=afterDRegister, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
         ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOut1,zr=zrOut2,ng= ngOut1,ng=ngOut2
         ,out=ALUOutput, out =inDRegister, out= outM);

@@ -22,7 +22,7 @@ CHIP Computer {
     // the CPU
     CPU(inM=inCPU,instruction= loadInstruction,reset=reset,outM=inMemory, writeM=loadMemory,
         addressM= addressMemory, pc=outPC);
-    // the rom
+    // the rom32k
     ROM32K(address=outPC ,out=loadInstruction);
     //the ram which contains the memory map (ram16k, screen, keyboard)
     Memory(in= inMemory,load=loadMemory, address=addressMemory, out=inCPU);

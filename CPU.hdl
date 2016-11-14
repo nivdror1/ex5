@@ -53,11 +53,12 @@ CHIP CPU {
         ,out=ALUOutput, out =inDRegister, out= outM);
 
     // check if is there a need to write to the M register
-    And(a= true,b=instruction[3],out=writeM);
+    And(a= instruction[15],b=instruction[3],out=writeM);
 
     // D register
     DRegister(in= inDRegister, load=instruction[4],out=afterDRegister);
-    // checking if the ALU output is negative
+
+    // checking if the ALU output is negative, positive and equal to zero
 
     And(a=ngOut1, b=instruction[2], out=isNeg);
     And(a=zrOut1,b=instruction[1] ,out=isZero);
@@ -68,12 +69,13 @@ CHIP CPU {
 
 
     Or(a=isNeg,b=isZero,out=out1);
-    Or(a=isPos, b=out1, out=out2);
+    Or(a=isPos, b=out1, out=out2,out=load1);
 
-    DMux(in=out2, sel=instruction[15],a=inc1, b=jump);
+    Not(in=out2,out=notOut2);
+    And(a=true,b=notOut2,out=inc1);
 
     // the program counter todo the pc maybe complete
-    PC(in=inPC, inc=inc1, load=jump, reset=reset, out[0..14]=pc);
+    PC(in=inPC, inc=inc1, load=load1, reset=reset, out[0..14]=pc);
 
 
 }

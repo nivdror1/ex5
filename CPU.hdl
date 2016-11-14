@@ -52,7 +52,7 @@ CHIP CPU {
 
     //select between the A register and the M register
     Mux16( a= afterARegister, b= inM, sel= instruction[12], out= afterMux);
-    //TODO  i don't think the ALU is right
+    //the ALU
     ALU(x=afterDRegister, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
         ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOut1,zr=zrOut2,ng= ngOut1,ng=ngOut2
         ,out=ALUOutput, out =inDRegister, out= outM);
@@ -83,7 +83,7 @@ CHIP CPU {
     Not(in=load2,out=notLoad2);
     And(a=true,b=notLoad2,out=inc1);
 
-    // the program counter todo the pc maybe complete
+    // the program counter
     PC(in=inPC, inc=inc1, load=load2, reset=reset, out[0..14]=pc);
 
 }

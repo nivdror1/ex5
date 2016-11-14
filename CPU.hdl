@@ -80,7 +80,7 @@ CHIP CPU {
     Or(a=isPos, b=out1, out=out2,out=load1);
     And(a=load1, b=instruction[15],out=load2, out=load3);
 
-    //determining the PC inc input
+    //determining the PC inc inputs
     Not(in=load2,out=notLoad2);
     And(a=true,b=notLoad2,out=inc1);
 

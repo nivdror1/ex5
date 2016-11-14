@@ -44,16 +44,16 @@ CHIP CPU {
 
     //A register load
     Not(in=instruction[15], out=no15);
-    And(a=instruction[5],b= instruction[15],out= cInstru);
-    Or(a= no15, b=cInstru, out=ARegisterLoad);
+    And(a=instruction[5],b= instruction[15],out= cInstruction);
+    Or(a= no15, b=cInstruction, out=ARegisterLoad);
 
     // A register
     ARegister(in= inARegister, load=ARegisterLoad,out=inPC,out=afterARegister,out[0..14]=addressM);
 
     //select between the A register and the M register
     Mux16( a= afterARegister, b= inM, sel= instruction[12], out= afterMux);
-    //the ALU
 
+    //the ALU
     ALU(x=afterDRegister, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
         ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOut1,zr=zrOut2,ng= ngOut1,ng=ngOut2
         ,out=ALUOutput, out =inDRegister, out= outM);
@@ -68,7 +68,6 @@ CHIP CPU {
     DRegister(in= inDRegister, load=DRegisterLoad,out=afterDRegister);
 
     // checking if the ALU output is negative, positive and equal to zero
-
     And(a=ngOut1, b=instruction[2], out=isNeg);
     And(a=zrOut1,b=instruction[1] ,out=isZero);
     Not(in=zrOut2, out= notZrOutput);
@@ -76,11 +75,12 @@ CHIP CPU {
     And(a=positive,b=notZrOutput,out=pos);
     And(a= pos, b=instruction[0],out=isPos);
 
-
+    //checking the is a need to jump
     Or(a=isNeg,b=isZero,out=out1);
     Or(a=isPos, b=out1, out=out2,out=load1);
     And(a=load1, b=instruction[15],out=load2, out=load3);
 
+    //determining the PC inc input
     Not(in=load2,out=notLoad2);
     And(a=true,b=notLoad2,out=inc1);
 

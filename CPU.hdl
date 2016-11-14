@@ -43,46 +43,37 @@ CHIP CPU {
     Mux16( a=instruction, b=ALUOutput,sel = instruction[15],out= inARegister);
 
     // A register
-    Register(in= inARegister, load=instruction[5],out=inPC,out=afterARegister,out[0..14]=AddressM);
+    ARegister(in= inARegister, load=instruction[5],out=inPC,out=afterARegister,out[0..14]=AddressM);
 
     //select between the A register and the M register
-    Mux16( a= inALU, b= inM, sel= instruction[12], out= afterMux);
-
+    Mux16( a= afterARegister, b= inM, sel= instruction[12], out= afterMux);
     //TODO  i don't think the ALU is right
-    ALU(x=inALU, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
-        ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOutput,ng= ngOutput
-        ,out=inARegister, out =inDRegister, out= outM,out=inPcMux);
+    ALU(x=afterDRegister, y=afterMux, zx= instruction[11],nx=instruction[10], zy= instruction[9],
+        ny=instruction[8], f=instruction[7], no=instruction[6],zr= zrOut1,zr=zrOut2,ng= ngOut1,ng=ngOut2
+        ,out=ALUOutput, out =inDRegister, out= outM);
 
     // check if is there a need to write to the M register
-    And(a= true,b=instruction[4],out=writeM);
+    And(a= true,b=instruction[3],out=writeM);
 
     // D register
-    Register(in= inDRegister, load=instruction[4],out=inALU);
+    DRegister(in= inDRegister, load=instruction[4],out=afterDRegister);
+    // checking if the ALU output is negative
 
-   // checking if the ALU output is negative
-   And(a=ngOutput, b=instruction[2], out=isNeg);
-   And(a=zrOutput,b=instruction[1] ,out=isZero);
-   Not(in=ngOutput,out=positive);
-   And(a=positive,b=instruction[0],out=isPos);
+    And(a=ngOut1, b=instruction[2], out=isNeg);
+    And(a=zrOut1,b=instruction[1] ,out=isZero);
+    Not(in=zrOut2, out= notZrOutput);
+    Not(in=ngOut2,out=positive);
+    And(a=positive,b=notZrOutput,out=pos);
+    And(a= pos, b=instruction[0],out=isPos);
 
-   //check if it is an unconditional jump
-   And(a=instruction[1],b=instruction[2],out=jumpPart1);
-   And(a=instruction[0], b=jumpPart1, out=jumpPart2,out=sel1,out=sel2,out=sel3);
 
-   //check if it is a no jump instruction
-   Not(in=instruction[0],out=afterNot0);
-   Not(in=instruction[1],out=afterNot1);
-   Not(in=instruction[2], out=afterNot2, out= checkALUPos);
-   And(a=afterNot0, b= afterNot1, out=noJumpPart1);
-   And(a=noJumpPart1, b=afterNot,out=noJump);
+    Or(a=isNeg,b=isZero,out=out1);
+    Or(a=isPos, b=out1, out=out2);
 
-   //select which jump operation to load into the pc
-   Mux(a=isNeg,b=jumpPart2 ,sel=sel1, out=loadPart0);
-   Mux(a=isZero,b=loadPart0 ,sel=sel2, out=loadPart1);
-   Mux(a=isPos, b=loadPart1, sel= sel3, out=loadPart2);
+    DMux(in=out2, sel=instruction[15],a=inc1, b=jump);
 
     // the program counter todo the pc maybe complete
-    PC(in=inPC, inc=noJump, load=loadPart2, reset=reset, out=pc);
+    PC(in=inPC, inc=inc1, load=jump, reset=reset, out[0..14]=pc);
 
 
 }

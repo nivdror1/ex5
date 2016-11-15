@@ -30,4 +30,34 @@ CHIP CpuMul{
         pc[15];          // address of next instruction
 
      PARTS:
+
+
+    // pre-A Mux
+    Mux16( a = instruction, b = ALUoutput, sel = instruction[15], out = inA);
+    // A controls
+    Not( in = instruction[15], out = notI);
+    Or( a = notI, b = instruction[5], out = controlA);
+    // A - register
+    ARegister( in = inA, load = controlA, out = outA, out[0..14] = addressM);
+
+
+    // A/M Mux
+    Mux16( a = outA, b = inM, sel = instruction[12],out = muxAMout);
+
+    // the D-Register
+    And( a = instruction[4], b = instruction[15], out = loadD);
+    DRegister( in = ALUoutput, load = loadD, out = outD);
+
+
+    // ----------   ALU   --------------
+    ExtendAlu( y = muxAMout, x = outD, instruction = instruction[6..14], out = ALUoutput, out = outM, zr = zr, ng = ng);
+
+
+    // PC controls
+    PCControls(i = instruction[15], j = instruction[0..2], zr = zr, ng = ng, out = pcControl);
+    PC(in = outA, load = pcControl, inc = true, reset = reset, out[0..14] = pc);
+
+    And(a = instruction[15], b = instruction[3], out = writeM);
+
+
 }

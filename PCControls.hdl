@@ -1,0 +1,22 @@
+// get all jump bits and zr, ng
+// return 1 if jump, else 0
+
+CHIP PCControls {
+
+    IN  i, j[3], zr, ng;
+    OUT out;
+
+    PARTS:
+
+    Not(in = ng, out = notNg);
+    Not(in = zr, out = notZr);
+    And(a = notNg, b = notZr, out = pos);
+
+    And( a = pos, b = j[0], out = jumpForPos);
+    And( a = zr, b = j[1], out = jumpForZero);
+    And( a = ng, b = j[2], out = jumpForNg);
+
+    Or8Way(in[0] =  jumpForZero, in[1] = jumpForNg, in[2] = jumpForPos, in[3..7] = false, out = jmp);
+    And( a = i, b = jmp, out = out);
+}
+

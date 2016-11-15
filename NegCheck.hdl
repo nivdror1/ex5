@@ -1,0 +1,16 @@
+
+// check if 16-bit input is negative. return 1 if yes.
+
+CHIP NegCheck {
+    IN in[16];
+    OUT out;
+
+
+    PARTS:
+    Xor( a = false, b = in[15], out = out);
+
+
+
+
+
+}
